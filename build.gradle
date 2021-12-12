@@ -1,5 +1,6 @@
 plugins {
-    id 'java'
+    id 'java-library'
+    id 'com.github.johnrengelman.shadow' version '7.1.0'
 }
 
 group 'tk.nikomitk'
@@ -9,11 +10,24 @@ repositories {
 }
 
 dependencies {
+    implementation 'org.jetbrains:annotations:20.1.0'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.0'
     implementation 'com.fasterxml.jackson.core:jackson-core:2.13.0'
-    implementation 'com.formdev:flatlaf:1.6.3'
+    implementation 'com.formdev:flatlaf:1.6.4'
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation 'com.miglayout:miglayout-swing:5.3'
+    implementation 'com.formdev:flatlaf-extras:1.6.4'
+}
+
+jar {
+    manifest {
+        attributes (
+                'Main-Class': 'tk/nikomitk/gui/main/chatlist/Main'
+        )
+    }
 }
 
 test {
