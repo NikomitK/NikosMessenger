@@ -2,26 +2,29 @@ package tk.nikomitk.gui.login;
 
 import com.formdev.flatlaf.FlatDarculaLaf;
 import com.formdev.flatlaf.FlatLightLaf;
+import tk.nikomitk.Main;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
+
+// Did login and signup as different panels because it's easier to deal with actionlisteners, button texts etc.
 public class LoginScreen extends JFrame {
 
     private LogInPanel logInPanel;
-    private JPanel signUpPanel;
+    private SignUpPanel signUpPanel;
 
     public LoginScreen(boolean rememberMe){
-        // TODO switch with a button
-        setDarkTheme(true);
-        initGui();
+        initComponents();
         setGuiOptions();
         setVisible(true);
+        authfromRemembered(rememberMe);
     }
 
-    private void authenticate() {
-        // TODO send hashed password to server
+    private void authfromRemembered(boolean rememberMe){
+        if(!rememberMe) return;
+        if(Main.authenticate(Main.settings.getUsername(), Main.settings.getPassword())) this.dispose();
     }
 
     private void setGuiOptions(){
@@ -30,25 +33,11 @@ public class LoginScreen extends JFrame {
         setSize(350,230);
         setResizable(false);
         setTitle("Log in!");
+        setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
     }
 
-    private void setDarkTheme(boolean darkTheme) {
-        if(darkTheme){
-            FlatDarculaLaf.setup();
-        } else {
-            FlatLightLaf.setup();
-        }
-        setUndecorated(true);
-        getRootPane().setWindowDecorationStyle(JRootPane.FRAME);
-        SwingUtilities.updateComponentTreeUI(this);
-
-    }
-
-    private void initGui(){
-        // TODO initialize components
-
+    private void initComponents(){
         UIManager.put("TextComponent.arc", 999);
-        UIManager.put("Button.arc", 999); // i have no idea why but this doesn't work anymore, while the line above does
         setLayout(new GridLayout());
 
         ActionListener switchToSignUp = e -> {
@@ -56,6 +45,7 @@ public class LoginScreen extends JFrame {
             add(signUpPanel);
             remove(logInPanel);
             signUpPanel.setVisible(true);
+            switchDefaultButton(false);
             setSize(350, 300);
             setTitle("Sign up!");
         };
@@ -68,21 +58,43 @@ public class LoginScreen extends JFrame {
             logInPanel.setVisible(true);
             add(logInPanel);
             remove(signUpPanel);
+            switchDefaultButton(true);
             setSize(350,230);
             setTitle("Log in!");
         };
         ActionListener signUpListener = e -> signUp();
         signUpPanel = new SignUpPanel(switchToLogIn, signUpListener);
-//        signUpPanel.setVisible();
+        switchDefaultButton(true);
         System.out.println("INIT DONE...");
     }
 
     private void signUp(){
-
+        String username = signUpPanel.getUsername();
+        String password = signUpPanel.getPassword();
+        String repeatedPassword = signUpPanel.getRepeatedPassword();
+        if(!password.equals(repeatedPassword)) {
+            signUpPanel.passwordsDoNotMatch();
+            return;
+        }
+        String response = Main.signUp(username, password);
+        if(response.contains("true")) {
+            this.dispose();
+        } else if(response.contains("not available")) {
+            JOptionPane.showMessageDialog(this, "This username is not available!");
+        } else {
+            JOptionPane.showMessageDialog(this, "Some error happened, idk");
+        }
     }
 
-    private void switchPanels(){
-        add(signUpPanel);
+    private void authenticate() {
+        // TODO send hashed password to server
+        if(Main.authenticate(logInPanel.getUsername(), logInPanel.getPassword())) this.dispose();
+    }
+
+    private void switchDefaultButton(boolean toLogin){
+        if(toLogin) getRootPane().setDefaultButton(logInPanel.getLoginButton());
+        if(!toLogin) getRootPane().setDefaultButton(signUpPanel.getSignUpButton());
+        this.revalidate();
     }
 
 }
