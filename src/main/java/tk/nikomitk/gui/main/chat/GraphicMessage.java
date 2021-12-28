@@ -2,6 +2,8 @@ package tk.nikomitk.gui.main.chat;
 
 import com.formdev.flatlaf.extras.components.FlatButton;
 import net.miginfocom.swing.MigLayout;
+import tk.nikomitk.Main;
+import tk.nikomitk.gui.main.MainGui;
 import tk.nikomitk.messenger.Message;
 
 import javax.swing.*;
@@ -27,14 +29,13 @@ public class GraphicMessage extends FlatButton {
     private Message message;
 
     // TODO maybe rollover"listener" to show options button only when hovered over message (whatsapp web)
-    // TODO make editable
+    // TODO maybe enable button to select
     public GraphicMessage(Message message) {
         this.message = message;
         createLook();
 
         mainPanel = new JPanel(new BorderLayout());
         mainPanel.setMaximumSize(new Dimension(300, 10000));
-        // TODO opaque for panels necessary?
         mainPanel.setOpaque(false);
         add(mainPanel, BorderLayout.CENTER);
 
@@ -44,8 +45,8 @@ public class GraphicMessage extends FlatButton {
 
         textLabel = new JLabel();
         textLabel.setMaximumSize(new Dimension(300, 10000));
-        textLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        textLabel.setForeground(Color.black);
+        textLabel.setFont(Main.getFont("Message"));
+        textLabel.setForeground(Main.getColor("TextColor"));
         // html tags to add auto-newline to label, better way?
         textLabel.setText("<html><p>" + this.message.getText() + "</p></html>");
         textPanel.add(textLabel, "push, dock west");
@@ -58,9 +59,9 @@ public class GraphicMessage extends FlatButton {
         optionsPanel.setOpaque(false);
         rightPanel.add(optionsPanel, BorderLayout.PAGE_START);
 
-        optionsLabel = new JLabel("...");
-        optionsLabel.setFont(new Font("Arial", Font.BOLD, 15));
-        optionsLabel.setForeground(Color.BLACK);
+        optionsLabel = new JLabel("<html>&#8285;</html>");
+        optionsLabel.setFont(Main.getFont("Message"));
+        optionsLabel.setForeground(Main.getColor("TextColor"));
         optionsLabel.setOpaque(false);
         optionsLabel.addMouseListener(new MouseAdapter() {
             @Override
@@ -83,22 +84,64 @@ public class GraphicMessage extends FlatButton {
 
         dateLabel = new JLabel(this.message.getTime());
         dateLabel.setFont(new Font("Arial", Font.PLAIN, 12));
-        dateLabel.setForeground(Color.black);
+        dateLabel.setForeground(Main.getColor("TextColor"));
         datePanel.add(dateLabel, BorderLayout.LINE_END);
 
         // TODO menu items copy, answer, react, edit, delete etc. maybe in extra function
-        popupMenu = new JPopupMenu();
-        popupMenu.add(new JMenuItem("copy"));
-        popupMenu.add(new JMenuItem("answer"));
-        popupMenu.add(new JMenuItem("react"));
+        popupMenu = createPopup();
     }
 
     private void createLook() {
         setEnabled(false);
         setLayout(new BorderLayout());
+        setBorderPainted(false);
         // if preferred size is set, messages won't resize
         setMinimumSize(new Dimension(40, 35));
         setMaximumSize(new Dimension(300, 10000));
+    }
+
+    private JPopupMenu createPopup(){
+        // TODO complete this crap
+        JPopupMenu thisPopup = new JPopupMenu();
+
+        JMenuItem copyItem = new JMenuItem("copy");
+        copyItem.addActionListener(e -> {
+            System.out.println("copy");
+        });
+//        thisPopup.add(copyItem);
+
+        JMenuItem answerItem = new JMenuItem("answer");
+        answerItem.addActionListener(e -> {
+            System.out.println("answer");
+        });
+//        thisPopup.add(answerItem);
+
+        JMenuItem reactItem = new JMenuItem("react");
+        reactItem.addActionListener(e -> {
+            System.out.println("react");
+        });
+//        thisPopup.add(reactItem);
+
+        JMenuItem editItem = new JMenuItem("edit");
+        editItem.addActionListener(e -> {
+            String newText = JOptionPane.showInputDialog("");
+            if(newText == null) return;
+            editMessage(newText);
+        });
+        thisPopup.add(editItem);
+
+        JMenuItem deleteItem = new JMenuItem("delete");
+        deleteItem.addActionListener(e -> {
+            System.out.println("delete");
+            MainGui.deleteMessage(message);
+        });
+        thisPopup.add(deleteItem);
+        return thisPopup;
+    }
+
+    public void editMessage(String newText){
+        message.setText(newText);
+        textLabel.setText("<html><p>" + this.message.getText() + "</p></html>");
     }
 
 }
