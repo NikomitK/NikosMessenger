@@ -1,5 +1,8 @@
 package tk.nikomitk.gui.login;
 
+import lombok.Getter;
+import tk.nikomitk.Main;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -15,13 +18,27 @@ public class LogInPanel extends JPanel {
     private JCheckBox rememberMeBox;
     private JCheckBox showPasswordBox;
     private JPanel buttonPanel;
+    @Getter
     private JButton loginButton;
     private JButton switchToSignUpButton;
 
-    // TODO listener for log in
-    public LogInPanel(ActionListener switchToSignUp, ActionListener logInListener){
+    public LogInPanel(ActionListener switchToSignUp, ActionListener logInListener) {
+        initComponents(switchToSignUp, logInListener);
+    }
+
+    public String getUsername() {
+        if (usernameField.getText() == null) return "";
+        return usernameField.getText();
+    }
+
+    public String getPassword() {
+        if (passwordField.getText() == null) return "";
+        return passwordField.getText();
+    }
+
+    private void initComponents(ActionListener switchToSignUp, ActionListener logInListener) {
         setLayout(new GridLayout());
-        mainPanel = new JPanel(new GridLayout(6,1));
+        mainPanel = new JPanel(new GridLayout(6, 1));
         add(mainPanel);
 
         usernameLabel = new JLabel("    Username");
@@ -36,10 +53,11 @@ public class LogInPanel extends JPanel {
         passwordField = new JPasswordField();
         mainPanel.add(passwordField);
 
-        checkBoxPanel = new JPanel(new GridLayout(1,2));
+        checkBoxPanel = new JPanel(new GridLayout(1, 2));
         mainPanel.add(checkBoxPanel);
 
         rememberMeBox = new JCheckBox();
+        rememberMeBox.addChangeListener(e -> Main.settings.setRememberMe(rememberMeBox.isSelected()));
         rememberMeBox.setText("Remember me!");
         checkBoxPanel.add(rememberMeBox);
 
@@ -48,7 +66,7 @@ public class LogInPanel extends JPanel {
         checkBoxPanel.add(showPasswordBox);
 
 
-        buttonPanel = new JPanel(new GridLayout(1,2));
+        buttonPanel = new JPanel(new GridLayout(1, 2));
         mainPanel.add(buttonPanel);
 
         loginButton = new JButton("Log me in!");
